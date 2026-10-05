@@ -22,26 +22,26 @@ written in R with nimble ([`r_original/`](r_original)), and was then rewritten i
 
 | # | Team | Points now | Expected points | 90% interval | Title | Top 4 | Relegation | Pre-season forecast |
 |--:|:--|--:|--:|:-:|--:|--:|--:|--:|
-| 1 | Inter | 13 | 83.4 | 70–96 | 68% | 97% | – | 79.7 |
-| 2 | Roma | 13 | 72.4 | 58–86 | 12% | 72% | – | 64.0 |
-| 3 | Juventus | 10 | 68.4 | 54–82 | 5% | 52% | – | 66.6 |
-| 4 | Milan | 11 | 67.5 | 53–82 | 6% | 49% | – | 63.8 |
-| 5 | Napoli | 7 | 66.3 | 52–80 | 3% | 43% | – | 67.0 |
-| 6 | Lazio | 13 | 62.9 | 49–77 | 2% | 27% | – | 56.8 |
-| 7 | Como | 10 | 62.5 | 48–77 | 2% | 26% | – | 59.8 |
-| 8 | Atalanta | 6 | 62.0 | 48–76 | 1% | 24% | – | 65.4 |
+| 1 | Inter | 13 | 83.4 | 69–96 | 69% | 96% | – | 79.6 |
+| 2 | Roma | 13 | 72.3 | 58–86 | 12% | 71% | – | 64.1 |
+| 3 | Juventus | 10 | 68.2 | 54–82 | 5% | 52% | – | 66.5 |
+| 4 | Milan | 11 | 67.6 | 53–82 | 5% | 49% | – | 63.9 |
+| 5 | Napoli | 7 | 66.5 | 52–80 | 3% | 44% | – | 67.2 |
+| 6 | Lazio | 13 | 63.1 | 49–77 | 2% | 27% | – | 56.5 |
+| 7 | Como | 10 | 62.8 | 49–77 | 2% | 27% | – | 59.8 |
+| 8 | Atalanta | 6 | 62.1 | 48–76 | 1% | 25% | – | 65.3 |
 | 9 | Cagliari | 12 | 49.5 | 36–64 | – | 2% | 4% | 41.4 |
-| 10 | Bologna | 2 | 49.1 | 35–63 | – | 2% | 5% | 55.1 |
-| 11 | Fiorentina | 4 | 48.5 | 35–63 | – | 2% | 6% | 53.8 |
-| 12 | Sassuolo | 7 | 47.9 | 34–62 | – | 1% | 7% | 46.0 |
-| 13 | Frosinone | 10 | 47.3 | 33–63 | – | 2% | 9% | 38.6 |
-| 14 | Udinese | 4 | 44.8 | 31–59 | – | – | 12% | 46.9 |
-| 15 | Torino | 4 | 44.3 | 31–58 | – | – | 13% | 45.8 |
-| 16 | Genoa | 1 | 38.2 | 25–52 | – | – | 34% | 44.8 |
-| 17 | Parma | 4 | 37.9 | 25–51 | – | – | 36% | 40.1 |
-| 18 | Lecce | 6 | 36.3 | 24–50 | – | – | 47% | 36.4 |
-| 19 | Monza | 4 | 36.2 | 23–50 | – | – | 45% | 38.2 |
-| 20 | Venezia | 0 | 28.4 | 16–42 | – | – | 80% | 36.5 |
+| 10 | Bologna | 2 | 49.0 | 35–63 | – | 2% | 5% | 55.1 |
+| 11 | Fiorentina | 4 | 48.5 | 35–63 | – | 1% | 6% | 53.8 |
+| 12 | Sassuolo | 7 | 48.0 | 34–62 | – | 1% | 7% | 46.0 |
+| 13 | Frosinone | 10 | 47.2 | 33–63 | – | 2% | 9% | 38.6 |
+| 14 | Udinese | 4 | 44.6 | 31–58 | – | – | 13% | 46.7 |
+| 15 | Torino | 4 | 44.2 | 31–58 | – | – | 13% | 46.0 |
+| 16 | Genoa | 1 | 38.0 | 25–52 | – | – | 35% | 45.1 |
+| 17 | Parma | 4 | 37.7 | 25–51 | – | – | 37% | 40.0 |
+| 18 | Lecce | 6 | 36.4 | 24–50 | – | – | 45% | 36.5 |
+| 19 | Monza | 4 | 36.3 | 23–50 | – | – | 46% | 38.1 |
+| 20 | Venezia | 0 | 28.6 | 16–42 | – | – | 80% | 36.6 |
 <!-- forecast:end -->
 
 ![2026/27 forecast](figures/forecast_2026_27.png)
@@ -56,12 +56,12 @@ played, and refitted from scratch at every cut-off.
 <!-- backtest:start -->
 | Forecast made | Matches used | Matches simulated | Correlation | Mean abs. error | 90% interval width | Coverage |
 |:--|--:|--:|--:|--:|--:|--:|
-| before matchday 1 | 1900 | 380 | 0.817 | 7.91 | 30.9 | 0.85 |
-| after matchday 12 | 2020 | 260 | 0.919 | 5.91 | 22.9 | 0.90 |
-| after matchday 19 | 2090 | 190 | 0.953 | 4.40 | 18.8 | 0.85 |
-| after matchday 28 | 2180 | 100 | 0.981 | 2.83 | 13.1 | 0.95 |
+| before matchday 1 | 1900 | 380 | 0.817 | 7.92 | 30.7 | 0.85 |
+| after matchday 12 | 2020 | 260 | 0.919 | 5.92 | 22.8 | 0.90 |
+| after matchday 19 | 2090 | 190 | 0.953 | 4.41 | 18.8 | 0.85 |
+| after matchday 28 | 2180 | 100 | 0.981 | 2.81 | 13.1 | 0.95 |
 
-Naive benchmark (every team at the league average): **14.66** points. Error left by chance alone (strengths fixed at their after-matchday-28 estimates, season replayed 8,000 times): **6.00** points. The pre-season model closes **78%** of the gap that can be closed.
+Naive benchmark (every team at the league average): **14.66** points. Error left by chance alone (strengths fixed at their after-matchday-28 estimates, season replayed 8,000 times): **6.01** points. The pre-season model closes **78%** of the gap that can be closed.
 <!-- backtest:end -->
 
 ![Forecast before matchday 1 against the final table](figures/backtest_predicted_vs_actual.png)

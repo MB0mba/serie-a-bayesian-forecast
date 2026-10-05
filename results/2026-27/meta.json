@@ -10,9 +10,9 @@
       "matches_used": 2280,
       "matches_simulated": 380,
       "n_sims": 8000,
-      "divergences": 2,
-      "max_rhat": 1.002,
-      "seconds": 279
+      "divergences": 0,
+      "max_rhat": 1.0016,
+      "seconds": 124
     },
     "5": {
       "m": 5,
@@ -20,8 +20,8 @@
       "matches_simulated": 330,
       "n_sims": 8000,
       "divergences": 0,
-      "max_rhat": 1.0017,
-      "seconds": 269
+      "max_rhat": 1.0027,
+      "seconds": 93
     }
   }
 }
