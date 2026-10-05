@@ -1,0 +1,27 @@
+{
+  "season": "2026/2027",
+  "cutoffs": [
+    0,
+    5
+  ],
+  "fits": {
+    "0": {
+      "m": 0,
+      "matches_used": 2280,
+      "matches_simulated": 380,
+      "n_sims": 8000,
+      "divergences": 2,
+      "max_rhat": 1.002,
+      "seconds": 279
+    },
+    "5": {
+      "m": 5,
+      "matches_used": 2330,
+      "matches_simulated": 330,
+      "n_sims": 8000,
+      "divergences": 0,
+      "max_rhat": 1.0017,
+      "seconds": 269
+    }
+  }
+}

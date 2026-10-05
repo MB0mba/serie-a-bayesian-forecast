@@ -1,0 +1,71 @@
+{
+  "season": "2025/2026",
+  "cutoffs": [
+    0,
+    12,
+    19,
+    28
+  ],
+  "fits": {
+    "0": {
+      "m": 0,
+      "matches_used": 1900,
+      "matches_simulated": 380,
+      "n_sims": 8000,
+      "divergences": 0,
+      "max_rhat": 1.0037,
+      "seconds": 220,
+      "correlation": 0.8174,
+      "mae": 7.9097,
+      "mean_width": 30.9,
+      "coverage_90": 0.85
+    },
+    "12": {
+      "m": 12,
+      "matches_used": 2020,
+      "matches_simulated": 260,
+      "n_sims": 8000,
+      "divergences": 0,
+      "max_rhat": 1.0031,
+      "seconds": 191,
+      "correlation": 0.9195,
+      "mae": 5.9142,
+      "mean_width": 22.95,
+      "coverage_90": 0.9
+    },
+    "19": {
+      "m": 19,
+      "matches_used": 2090,
+      "matches_simulated": 190,
+      "n_sims": 8000,
+      "divergences": 0,
+      "max_rhat": 1.0031,
+      "seconds": 236,
+      "correlation": 0.9529,
+      "mae": 4.3951,
+      "mean_width": 18.75,
+      "coverage_90": 0.85
+    },
+    "28": {
+      "m": 28,
+      "matches_used": 2180,
+      "matches_simulated": 100,
+      "n_sims": 8000,
+      "divergences": 0,
+      "max_rhat": 1.0024,
+      "seconds": 242,
+      "correlation": 0.9807,
+      "mae": 2.8259,
+      "mean_width": 13.1,
+      "coverage_90": 0.95
+    }
+  },
+  "error_floor": {
+    "naive": 14.655000000000001,
+    "model_m0": 7.909706250000002,
+    "floor": 5.9958781640625,
+    "chance_sd": 7.506681679774795,
+    "gap_closed": 0.7789812729052222,
+    "strengths_from_m": 28
+  }
+}

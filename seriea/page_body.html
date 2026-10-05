@@ -1,0 +1,252 @@
+<div class="wrap">
+  <header>
+    <div class="kicker" id="kicker"></div>
+    <h1>Serie A 2026/27: the predicted final table</h1>
+    <p class="lead" id="lead"></p>
+    <p class="meta" id="meta"></p>
+    <div class="links"><a href="https://github.com/__REPO__">Code and method on GitHub</a></div>
+  </header>
+
+  <section aria-labelledby="h-table">
+    <h2 id="h-table">Predicted final table</h2>
+    <p>Teams ordered by expected final points. The bar is the range that contains the final points with 90% probability, the dot is the forecast, the tick the points already won.</p>
+    <div class="card">
+      <table id="tbl">
+        <thead><tr>
+          <th class="l">#</th><th class="l">Team</th><th>Now</th>
+          <th class="l stripcell"><svg class="strip" viewBox="0 0 400 18" aria-hidden="true" id="axis"></svg></th>
+          <th>Expected pts</th><th>Title</th><th>Top 4</th><th>Relegation</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="legend">
+        <span class="key"><span class="line" style="background:var(--s1-soft)"></span>90% interval</span>
+        <span class="key"><span class="dot" style="background:var(--s1)"></span>expected points</span>
+        <span class="key"><span class="line" style="background:var(--ink);width:3px;height:12px"></span>points already won</span>
+        <span class="key"><span class="sw" style="background:var(--ucl)"></span>Champions League places (top 4)</span>
+        <span class="key"><span class="sw" style="background:var(--rel)"></span>relegation (bottom 3)</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-heat">
+    <h2 id="h-heat">Where each team can finish</h2>
+    <p>Probability of finishing in each position, counted over the simulated seasons. The darker the cell, the more likely that position.</p>
+    <div class="card">
+      <table class="heat" id="heat"></table>
+      <div class="legend">
+        <span class="scale">probability of the position <span class="ramp" id="ramp"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-shift" id="shift-section">
+    <h2 id="h-shift">What the first matchdays changed</h2>
+    <p id="shift-intro"></p>
+    <div class="card"><svg id="shift" role="img" aria-labelledby="h-shift"></svg>
+      <div class="legend">
+        <span class="key"><span class="dot" style="background:var(--s2)"></span>forecast before matchday 1</span>
+        <span class="key"><span class="dot" style="background:var(--s1)"></span><span id="shift-now-label">forecast today</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-track">
+    <h2 id="h-track">Track record: the same model on 2025/26</h2>
+    <p id="track-intro"></p>
+    <div class="card">
+      <table class="track" id="track">
+        <thead><tr><th class="l">Forecast made</th><th>Mean abs. error (points)</th><th>90% interval width</th><th>Teams inside the interval</th><th>Correlation with final table</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-how">
+    <h2 id="h-how">How it works</h2>
+    <div class="cols">
+      <div class="note">
+        <h3>The model</h3>
+        <p>Each team's goals are Poisson counts. Attack and defence strengths change from one season to the next through an autoregression, and every season has its own scoring level. Adapted from Baio and Blangiardo (2010) and fitted with PyMC.</p>
+        <dl id="params"></dl>
+      </div>
+      <div class="note">
+        <h3>The simulation</h3>
+        <p id="simtext"></p>
+      </div>
+      <div class="note">
+        <h3>How much to trust it</h3>
+        <p id="trust"></p>
+      </div>
+    </div>
+  </section>
+
+  <p class="meta" id="source"></p>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const D = __DATA__;
+const NS = "http://www.w3.org/2000/svg";
+const $ = s => document.querySelector(s);
+const fmt1 = v => v.toFixed(1);
+function pct(p){
+  if (p <= 0) return "–";
+  if (p < 0.005) return "<1%";
+  if (p > 0.995) return ">99%";
+  return Math.round(p * 100) + "%";
+}
+function el(tag, attrs, parent, text){
+  const e = tag.startsWith("svg:") ? document.createElementNS(NS, tag.slice(4)) : document.createElement(tag);
+  for (const k in (attrs || {})) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const tip = $("#tip");
+function showTip(ev, lines){
+  tip.replaceChildren();
+  lines.forEach((l, i) => { el(i === 0 ? "b" : "div", {}, tip, l); if (i === 0) tip.appendChild(document.createElement("br")); });
+  const r = ev.target.getBoundingClientRect ? ev.target.getBoundingClientRect() : null;
+  let x = ev.clientX, y = ev.clientY;
+  if ((x === undefined || x === 0) && r){ x = r.left + r.width / 2; y = r.top; }
+  tip.style.opacity = 1;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 14)) + "px";
+  tip.style.top = Math.max(8, y - h - 12) + "px";
+}
+function hideTip(){ tip.style.opacity = 0; }
+function hover(node, lines){
+  node.addEventListener("pointermove", e => showTip(e, lines()));
+  node.addEventListener("pointerleave", hideTip);
+  node.addEventListener("focus", e => showTip(e, lines()));
+  node.addEventListener("blur", hideTip);
+}
+const ord = k => k + (["th","st","nd","rd"][(k % 100 - 20) % 10] || ["th","st","nd","rd"][k % 100] || "th");
+
+/* header */
+const R = D.rows, n = R.length, m = D.m;
+const byTitle = [...R].sort((a, b) => b.title - a.title);
+const byRel = [...R].sort((a, b) => b.rel - a.rel);
+$("#kicker").textContent = m > 0 ? `After ${m} of 38 matchdays` : "Before matchday 1";
+$("#lead").textContent =
+  `${byTitle[0].team} are favourites for the title (${pct(byTitle[0].title)}), ahead of ${byTitle[1].team} (${pct(byTitle[1].title)}) and ${byTitle[2].team} (${pct(byTitle[2].title)}). ` +
+  `Most at risk of relegation: ${byRel[0].team} (${pct(byRel[0].rel)}), ${byRel[1].team} (${pct(byRel[1].rel)}) and ${byRel[2].team} (${pct(byRel[2].rel)}).`;
+$("#meta").textContent = `Results up to ${D.updated ? new Date(D.updated).toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"}) : "—"} · ${D.n_sims.toLocaleString("en-GB")} simulated seasons`;
+
+/* table */
+const X = p => p * 4;
+const axis = $("#axis");
+[0, 20, 40, 60, 80, 100].forEach(v => {
+  el("svg:text", {x: X(v), y: 13, "text-anchor": v === 0 ? "start" : (v === 100 ? "end" : "middle"), "font-size": 13, fill: "var(--muted)"}, axis, String(v));
+});
+const tb = $("#tbl tbody");
+R.forEach((r, i) => {
+  const tr = el("tr", {}, tb);
+  const zone = i < 4 ? "ucl" : (i >= n - 3 ? "rel" : "");
+  el("span", {class: "pos " + zone}, el("td", {class: "l"}, tr), String(i + 1));
+  el("td", {class: "l team"}, tr, r.team);
+  const now = el("td", {}, tr, String(r.now_pts));
+  el("div", {class: "sub"}, now, `${r.played} pl.`);
+  const sc = el("td", {class: "l stripcell"}, tr);
+  const svg = el("svg:svg", {class: "strip", viewBox: "0 0 400 22", tabindex: 0, role: "img",
+    "aria-label": `${r.team}: ${fmt1(r.pred)} expected points, between ${r.lo} and ${r.hi}`}, sc);
+  [0, 20, 40, 60, 80, 100].forEach(v => el("svg:line", {x1: X(v), x2: X(v), y1: 0, y2: 22, stroke: "var(--grid)", "stroke-width": 1}, svg));
+  el("svg:rect", {x: 0, y: 0, width: 400, height: 22, fill: "transparent"}, svg);
+  el("svg:line", {x1: X(r.lo), x2: X(r.hi), y1: 11, y2: 11, stroke: "var(--s1-soft)", "stroke-width": 6, "stroke-linecap": "round"}, svg);
+  el("svg:line", {x1: X(r.now_pts), x2: X(r.now_pts), y1: 4, y2: 18, stroke: "var(--ink)", "stroke-width": 2.5}, svg);
+  el("svg:circle", {cx: X(r.pred), cy: 11, r: 5, fill: "var(--s1)", stroke: "var(--surface)", "stroke-width": 2}, svg);
+  hover(svg, () => [`${fmt1(r.pred)} expected points`, r.team, `90% between ${r.lo} and ${r.hi}`, `${r.now_pts} points after ${r.played} matches`]);
+  el("td", {}, tr, fmt1(r.pred));
+  ["title", "top4", "rel"].forEach(k => {
+    const td = el("td", {class: "pct" + (r[k] <= 0.0 ? " zero" : "")}, tr, pct(r[k]));
+    if (r[k] > 0) { const b = el("span", {class: "bar"}, td); b.style.width = Math.max(2, r[k] * 60) + "px"; }
+  });
+});
+
+/* heatmap */
+const heat = $("#heat");
+const H = ["--h0","--h1","--h2","--h3","--h4","--h5","--h6","--h7"];
+const CUTS = [0.005, 0.02, 0.05, 0.10, 0.20, 0.35, 0.50];
+const CUT_LABELS = ["<2%", "2–5%", "5–10%", "10–20%", "20–35%", "35–50%", ">50%"];
+function level(p){ let lv = 0; CUTS.forEach((c, i) => { if (p >= c) lv = i + 1; }); return lv; }
+const hr = el("tr", {}, el("thead", {}, heat));
+el("th", {class: "l"}, hr, "Team");
+for (let k = 1; k <= n; k++) el("th", {}, hr, String(k));
+const hb = el("tbody", {}, heat);
+R.forEach(r => {
+  const tr = el("tr", {}, hb);
+  el("td", {class: "l"}, tr, r.team);
+  r.pos.forEach((p, k) => {
+    const lv = level(p);
+    const td = el("td", {class: "c", tabindex: 0}, tr, p >= 0.1 ? Math.round(p * 100) : "");
+    td.style.background = `var(${H[lv]})`;
+    td.style.color = lv >= 4 ? "var(--cell-ink-light)" : "var(--cell-ink-dark)";
+    if (k === 3 || k === n - 4) td.style.borderRight = "2px solid var(--muted)";
+    hover(td, () => [pct(p), `${r.team}, ${ord(k + 1)}`, k < 4 ? "Champions League places" : (k >= n - 3 ? "relegation" : "")].filter(Boolean));
+  });
+});
+const ramp = $("#ramp");
+H.slice(1).forEach((h, i) => {
+  const box = el("span", {style: "display:flex;flex-direction:column;align-items:center;gap:2px"}, ramp);
+  const s = el("span", {}, box); s.style.background = `var(${h})`; s.style.width = "44px"; s.style.height = "12px";
+  el("span", {style: "font-size:12px"}, box, CUT_LABELS[i]);
+});
+
+/* shift chart: pre-season forecast vs today */
+if (m === 0) { $("#shift-section").hidden = true; }
+else {
+  const sh = $("#shift");
+  const S = [...R].sort((a, b) => (b.pred - b.pre) - (a.pred - a.pre));
+  const W = 760, rowH = 24, padTop = 30, padLeft = 124, padRight = 70, Hh = padTop + S.length * rowH + 12;
+  sh.setAttribute("viewBox", `0 0 ${W} ${Hh}`); sh.style.width = "100%"; sh.style.minWidth = "560px"; sh.style.display = "block";
+  const lo = Math.floor(Math.min(...R.map(r => Math.min(r.pre, r.pred))) / 10) * 10;
+  const hi = Math.ceil(Math.max(...R.map(r => Math.max(r.pre, r.pred))) / 10) * 10;
+  const sx = v => padLeft + (v - lo) / (hi - lo) * (W - padLeft - padRight);
+  for (let v = lo; v <= hi; v += 10){
+    el("svg:line", {x1: sx(v), x2: sx(v), y1: padTop - 6, y2: Hh - 8, stroke: "var(--grid)"}, sh);
+    el("svg:text", {x: sx(v), y: 16, "text-anchor": "middle", "font-size": 13, fill: "var(--muted)"}, sh, String(v));
+  }
+  el("svg:text", {x: W - 8, y: 16, "text-anchor": "end", "font-size": 13, fill: "var(--muted)"}, sh, "points");
+  S.forEach((r, i) => {
+    const y = padTop + i * rowH + rowH / 2;
+    const g = el("svg:g", {tabindex: 0}, sh);
+    el("svg:rect", {x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent"}, g);
+    el("svg:text", {x: padLeft - 12, y: y + 4.5, "text-anchor": "end", "font-size": 14, fill: "var(--ink)"}, g, r.team);
+    el("svg:line", {x1: sx(r.pre), x2: sx(r.pred), y1: y, y2: y, stroke: "var(--faint)", "stroke-width": 2}, g);
+    el("svg:circle", {cx: sx(r.pre), cy: y, r: 5, fill: "var(--s2)", stroke: "var(--surface)", "stroke-width": 2}, g);
+    el("svg:circle", {cx: sx(r.pred), cy: y, r: 5, fill: "var(--s1)", stroke: "var(--surface)", "stroke-width": 2}, g);
+    const d = r.pred - r.pre;
+    el("svg:text", {x: W - 8, y: y + 4.5, "text-anchor": "end", "font-size": 13, fill: "var(--muted)"}, g, (d >= 0 ? "+" : "−") + fmt1(Math.abs(d)));
+    hover(g, () => [`${d >= 0 ? "+" : "−"}${fmt1(Math.abs(d))} points`, r.team, `before matchday 1: ${fmt1(r.pre)} (90%: ${r.pre_lo}–${r.pre_hi})`, `now: ${fmt1(r.pred)} (90%: ${r.lo}–${r.hi})`]);
+  });
+  const up = S[0], down = S[S.length - 1];
+  $("#shift-now-label").textContent = `forecast after matchday ${m}`;
+  $("#shift-intro").textContent = `Expected final points before matchday 1 and after matchday ${m}. Teams that started better than expected gain points, but slowly: with ${m} of 38 matchdays played the model still leans on previous seasons. Biggest rise: ${up.team} (${up.pred - up.pre >= 0 ? "+" : "−"}${fmt1(Math.abs(up.pred - up.pre))}); biggest fall: ${down.team} (−${fmt1(Math.abs(down.pred - down.pre))}).`;
+}
+
+/* track record */
+const T = D.track;
+if (T) {
+  const tbody = $("#track tbody");
+  T.rows.forEach(r => {
+    const tr = el("tr", {}, tbody);
+    el("td", {class: "l"}, tr, r.m === 0 ? "before matchday 1" : `after matchday ${r.m}`);
+    el("td", {}, tr, r.mae.toFixed(2));
+    el("td", {}, tr, r.width.toFixed(1));
+    el("td", {}, tr, `${Math.round(r.coverage * 20)} of 20`);
+    el("td", {}, tr, r.corr.toFixed(3));
+  });
+  $("#track-intro").textContent = `Forecasts of 2025/26 made before matchday 1 and after matchdays ${T.rows.filter(r => r.m > 0).map(r => r.m).join(", ")}, compared with the final table. A naive forecast that gives every team the league average is off by ${T.naive.toFixed(2)} points per team. Replaying the season with the strengths fixed at their best estimates, chance alone leaves an error of ${T.floor.toFixed(2)} points: the pre-season model closes ${Math.round(T.gap * 100)}% of the error that can be closed.`;
+  $("#trust").textContent = `On 2025/26 the pre-season forecast was off by ${T.rows[0].mae.toFixed(1)} points per team, against ${T.naive.toFixed(1)} for the naive forecast; about ${T.floor.toFixed(0)} of those points are pure chance. The model does not see transfers, coaches or injuries, so a team that changes a lot over the summer is the typical miss.`;
+}
+
+/* notes */
+const P = D.params, dl = $("#params");
+[[P.home.toFixed(3), `home advantage: +${Math.round((Math.exp(P.home) - 1) * 100)}% expected goals at home`],
+ [P.rho.toFixed(3), "persistence ρ: share of a team's distance from the average that survives a summer"],
+ [P.shock.toFixed(3), `typical summer shock: ±${((Math.exp(P.shock) - 1) * 100).toFixed(1)}% expected goals`]]
+ .forEach(([v, t]) => { el("dt", {}, dl, v); el("dd", {}, dl, t); });
+$("#simtext").textContent = `Fitted on every Serie A match from 2020/21 to 2025/26 plus the ${m} matchdays of 2026/27 already played. For each of the ${D.n_sims.toLocaleString("en-GB")} posterior draws the remaining matches are played again, drawing goals from the Poisson, and added to the points already won. Percentages count how often something happens across those seasons; ties on points are broken by goal difference. Diagnostics: max R̂ ${D.max_rhat}, ${D.divergences} divergent transitions.`;
+$("#source").textContent = "Data: openfootball (github.com/openfootball/italy), checked match by match against FBref for 2020/21–2025/26 (2,280 matches, no differences). Model: Baio and Blangiardo (2010), Journal of Applied Statistics, extended with season-to-season dynamics.";
+</script>
